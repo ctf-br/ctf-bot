@@ -4,16 +4,10 @@ const irc = require('irc');
 const request = require('request');
 const cheerio = require('cheerio');
 
-//settings
-const config = {
-    server: 'rajaniemi.freenode.net',
-    name: 'ctfbot',
-    channel: '#ctf-br'
-}
 const client = new irc.Client(
-    config.server,
-    config.name,
-    {servers: [config.channel]}
+    'rajaniemi.freenode.net',
+    'ctfbot',
+    { channels: ['#ctf-br'] }
 );
 
 const messagesListner = {};
@@ -28,7 +22,7 @@ client.addListener('message', function (from, to, message) {
     if (messagesListner[message]) {
         const msg = messagesListner[message];
         if (msg.idle > (new Date().getTime() - msg.timer)) {
-            client.say(config.channel, `To ocupado!!!`);
+            client.say('#ctf-br', `To ocupado!!!`);
             return;
         }
         msg.timer = new Date().getTime();
@@ -40,13 +34,13 @@ client.addListener('message', function (from, to, message) {
 respondMessage('!nextctf', 10000, () => {
     upcomingCtf()
         .then(ctf => {
-            client.say(config.channel, `Nome: ${ctf.name}`)
-            client.say(config.channel, `Data: ${ctf.date}`)
-            client.say(config.channel, `Tipo: ${ctf.type}`)
-            client.say(config.channel, `Site: ${ctf.link}`)
+            client.say('#ctf-br', `Nome: ${ctf.name}`)
+            client.say('#ctf-br', `Data: ${ctf.date}`)
+            client.say('#ctf-br', `Tipo: ${ctf.type}`)
+            client.say('#ctf-br', `Site: ${ctf.link}`)
         })
         .catch(err => {
-            client.say(config.channel, `${err}`);
+            client.say('#ctf-br', `${err}`);
         });
 });
 
