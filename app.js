@@ -10,6 +10,13 @@ const client = new irc.Client(
     { channels: ['#ctf-br'] }
 );
 
+//Give voice for new members join when they join
+client.addListener('join', function(channel, who){
+	if(who !== 'ctfbot'){
+		client.send('MODE', channel, '+v', who);
+	}
+});
+
 const messagesListner = {};
 
 //Generic message handler
