@@ -1,0 +1,7 @@
+{
+    "server": "rajaniemi.freenode.net",
+    "bot_nick": "ctfbot",
+    "channels": [
+        "#ctf-br"
+    ]
+}
