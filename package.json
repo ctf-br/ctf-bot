@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "cheerio": "^0.20.0",
+    "hotswap": "^1.1.0",
     "irc": "^0.4.1",
     "request": "^2.69.0"
   }

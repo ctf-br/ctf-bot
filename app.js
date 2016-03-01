@@ -1,90 +1,51 @@
 'use strict';
 
 const irc = require('irc');
-const request = require('request');
-const cheerio = require('cheerio');
 const fs = require('fs');
+const watch = require('watch');
+let handlers = require('./lib/handlers');
+
 const NODE_ENV = process.env.NODE_ENV || 'development';
 let config = loadEnv();
-console.log(config);
 
-// const client = new irc.Client(
-//     'rajaniemi.freenode.net',
-//     'ctfbot',
-//     { channels: ['#ctf-bot-test'] }
-// );
-
-const messagesListner = {};
+const client = new irc.Client(
+    config.server,
+    config.botNick,
+    { channels: config.channels }
+);
 
 function loadEnv() {
     try {
-        const file = NODE_ENV != 'production' ? 'config.json': 'dev-config.json'
-        return JSON.parse(fs.readFileSync(file));
+        return JSON.parse(fs.readFileSync(`./config/${NODE_ENV}.json`));
     } catch (err) {
         console.error(err);
         process.exit();
     }
 }
 
-//Generic message handler
-function respondMessage(message, idle, action) {
-    messagesListner[message] = {idle, action};
-}
+function bindListeners() {
+    console.log('Listeners Binded');
+    Object.keys(handlers).forEach(key => {
+        client.removeAllListeners(key);
+        client.addListener(key, handlers[key]);
+    });
+};
 
-//Listeners
+watch.createMonitor('./lib', (monitor) => {
+    bindListeners();
+    monitor.on('changed', () => reloadModuleCache());
+});
 
-//Message Listener
-client.addListener('message', function (from, to, message) {
-    if (messagesListner[message]) {
-        const msg = messagesListner[message];
-        if (msg.idle > (new Date().getTime() - msg.timer)) {
-            client.say('#ctf-bot-test', `To ocupado!!!`);
-            return;
-        }
-        msg.timer = new Date().getTime();
-        msg.action();
+function reloadModuleCache() {
+    fs.readdir('./lib', (err, files) => {
+        files.forEach(deleteFileCache);
+        console.log('All Modules Reloaded');
+        handlers = require('./lib/handlers');
+        bindListeners();
+    });
+
+    function deleteFileCache(file) {
+        console.log(`Delete Module Cache: ${file}`);
+        delete require.cache[require.resolve(`./lib/${file}`)];
     }
-});
-//Give voice for new members join when they join
-client.addListener('join', function(channel, who){
-	if(who !== 'ctfbot'){
-		client.send('MODE', channel, '+v', who);
-	}
-});
-//Error handler
-client.addListener('error', function(error){
-	console.log(error);
-});
-
-
-//Message handlers
-respondMessage('!nextctf', 10000, () => {
-    upcomingCtf()
-        .then(ctf => {
-            client.say('#ctf-bot-test', `Nome: ${ctf.name}`)
-            client.say('#ctf-bot-test', `Data: ${ctf.date}`)
-            client.say('#ctf-bot-test', `Tipo: ${ctf.type}`)
-            client.say('#ctf-bot-test', `Site: ${ctf.link}`)
-        })
-        .catch(err => {
-            client.say('#ctf-bot-test', `${err}`);
-        });
-});
-
-//Helper Functions
-function upcomingCtf() {
-    return new Promise((resolve, reject) => {
-        request('https://ctftime.org/event/list/upcoming', (error, response, body) => {
-            if (error) reject(error)
-            const $ = cheerio.load(body);
-            const td = $('.table tr')['1'].children;
-            const ctf = {
-                name: $(td[0]).find('a').html(),
-                date: $(td[1]).html().replace('&#x2014;', '-'),
-                type: $(td[2]).html(),
-                link: 'https://ctftime.org' + $(td[0]).find('a').attr('href')
-            }
-            resolve(ctf);
-        });
-    })
 }
