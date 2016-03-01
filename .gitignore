@@ -31,6 +31,5 @@ node_modules
 
 # Optional REPL history
 .node_repl_history
->>>>>>> b98f6a419c2b5cf9f301e9a9b0f3ec9488a5a269
 
 config/production.json
