@@ -1,0 +1,8 @@
+{
+    "server": "rajaniemi.freenode.net",
+    "botNick": "ctfbot-test",
+    "password": "",
+    "channels": [
+        "#ctf-bot-test"
+    ]
+}
