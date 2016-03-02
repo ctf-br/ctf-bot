@@ -8,7 +8,7 @@ You can set the envoironment configuration file inside config folder, the file m
 
 ### Funcionalities
 
-  - !nextctf: Return next CTF from [ctftime]
+  - $nextctf: Return next CTF from [ctftime]
 
 ### Todos
 
