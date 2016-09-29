@@ -18,6 +18,15 @@ const client = new irc.Client(
     }
 );
 
+// ping / pong for don't timeout
+client.on('raw', (message) => {
+    console.log('RAW:', message);
+    if(message.command === 'PING'){
+        client.send('PONG', message.args[0]);
+        console.log('Pong: ', message);
+    }
+});
+
 // Load env variables based on filename (duh~!?)
 function loadEnv() {
     try {

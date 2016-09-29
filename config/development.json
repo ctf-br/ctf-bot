@@ -1,9 +1,8 @@
 {
     "server": "rajaniemi.freenode.net",
-    "botNick": "ctf-br-bot",
+    "botNick": "l337-bot",
     "password": "",
     "channels": [
-        "#node-bots",
-        "#ctf-br"
+    	"#ctf-br"
     ]
 }
